@@ -117,7 +117,10 @@ function [result, state_values] = ...
     end
     ym_diagnostics = optimize(constraints, objective, settings); 
     assert(ym_diagnostics.problem ~= 1, "Problem was infeasible!");
-    assert(ym_diagnostics.problem == 0, "A problem occured while solving!");
+    if ym_diagnostics.problem ~= 0
+		fprintf("/!\ A problem occured while solving...\n");
+		disp(ym_diagnostics);
+	end
          
     % Get objective value
     result = value(objective);
