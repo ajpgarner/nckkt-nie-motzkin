@@ -1,53 +1,96 @@
-function expr = nabla_objective(obj, variate_idx, variate)
-%NABLA_NEG_SQUARE  Derivative of objective function.
+function expr = nabla_objective(obj, vIdx, variate)
+%NABLA_OBJECTIVE Derivative of objective function.
 %
-% We will use linearly:
-%    ∇a_i = \bar{a}_i
-%    ∇b_j = \bar{b}_j
-%    ∇{a_i, b_j} = {a_i, \bar{b}_j} + {b_j, \bar{a}_i}
+% Linear components (writing variate vector as y_1, y_2, y_3):
+%  ∇({x_1^4, x_2^2}) = {x_2^2, {x_1^2, {x_1, y_1}}} + {x_1^4, {x_2, y_2}}
+%  ∇({x_1^2, x_2^4}) = {x_1^2, {x_2^2, {x_2, y_2}}} + {x_2^4, {x_1, y_1}}
+%  ∇(x_3^6) = {x_3^4, {x_3, y_3}} + x_3^2 {x_3, y_3} x_3^2
+%  ∇(x_1^2 x_2^2 x_3^2) = x_1^2 x_2^2 {x_3, y_3} + x_1^2 {x_2,y_2} x_3^2 
+%                         + {x_1, y_1} x_2^2 x_3^2 
+%  ∇(x_3^2 x_2^2 x_1^2) = x_3^2 x_2^2 {x_1, y_1} + x_3^2 {x_2,y_2} x_1^2 
+%                         + {x_3, y_3} x_2^2 x_1^2 
+%
+% (NB: Objective also has real scaling factors!)
+%
 % PARAMS:
-%  variate_idx - The element of the variate that is non-zero (from 1 to 2d).
-%      variate - The variate monomial.
+%     vIdx - The element of the variate that is non-zero (1, 2 or 3).
+%  variate - The variate monomial.
 %
 
-    FC = obj.ObjectiveTensor;
 
-    % Does variate match a or b? Guaranteed to only match one...
-    if variate_idx <= obj.d %  Case: \bar{a}_i
+    % Specialize behaviour depending on the variate index
+    % (as many terms will be zero):
+    switch vIdx
+        case 1
+            expr = nabla_objective_y1(obj, variate);         
+        case 2
+            expr = nabla_objective_y2(obj, variate);            
+        case 3
+            expr = nabla_objective_y3(obj, variate);
+        otherwise
+            error("Bad vIdx.");            
+    end    
+end
 
-        % First, linear terms in objective:    
-        if FC(variate_idx + 1, 1) ~= 0
-            % Nabla k a_i = k \bar{a}_i
-            expr = FC(variate_idx + 1, 1) * variate;
-        else
-            expr = obj.Scenario.zero;
-        end
+%% Private functions
+function expr = nabla_objective_y1(obj, variate)
+%NABLA_OBJECTIVE_Y1 y_1 specialization of derivative.
 
-        % Since variate is substituted into some a_i,
-        %  we need the terms {b_j, \bar{a}_i} for all j.
-        for j = 1:obj.d
-            k = 0.5 * FC(variate_idx + 1, j + 1);
-            if k ~= 0
-                expr = expr + k * anticommutator(obj.b(j), variate);
-            end
-        end
-    else % Case : \bar{b}_j
+    % {x_1, y_1}:
+    ac_x1_y1 = anticommutator(obj.x1, variate);  
+    
+    % First term of ∇({x_1^4, x_2^2}) -> 0.5 * {x_2^2, {x_1^2, {x_1, y_1}}}
+    expr = 0.5 * anticommutator(obj.x2_pow2, ...
+                                anticommutator(obj.x1_pow2, ac_x1_y1));
+    
+    % Second term of  ∇({x_1^2, x_2^4}) -> 0.5 * {x_2^4, {x_1, y_1}}
+    expr = expr + 0.5 * anticommutator(obj.x2_pow4, ac_x1_y1);
+    
+    % Third term of ∇(x_1^2 x_2^2 x_3^2) -> -1.5 * {x_1, y_1} x_2^2 x_3^2 
+    expr = expr - 1.5 * ac_x1_y1 * obj.x2_pow2 * obj.x3_pow2;
+    
+    % First term of ∇(x_3^2 x_2^2 x_1^2) -> -1.5 * x_3^2 x_2^2 {x_1, y_1}
+    expr = expr - 1.5 * obj.x3_pow2 * obj.x2_pow2 * ac_x1_y1;
+end
 
-        % First, linear terms in objective:    
-        if FC(1, variate_idx - obj.d + 1) ~= 0
-            % Nabla k b_j = k \bar{b}_j
-            expr = FC(1, variate_idx - obj.d + 1) * variate;
-        else
-            expr = obj.Scenario.zero;
-        end
+function expr = nabla_objective_y2(obj, variate) 
+%NABLA_OBJECTIVE_Y2 y_2 specialization of derivative.
 
-        % Since variate is substituted into some b_j,
-        %  we need the terms {a_i, \bar{b}_j} for all i.
-        for i = 1:obj.d
-            k = 0.5 * FC(i + 1, variate_idx - obj.d + 1);
-            if k ~= 0
-                expr = expr + k * anticommutator(obj.a(i), variate);
-            end
-        end
-    end
+    % {x_2, y_2}:
+    ac_x2_y2 = anticommutator(obj.x2, variate);
+    
+    % Second term of ∇({x_1^4, x_2^2}) -> 0.5 * {x_1^4, {x_2, y_2}}
+    expr = 0.5 * anticommutator(obj.x1_pow4, ac_x2_y2);
+    
+    % First term of ∇({x_1^2, x_2^4}) -> 0.5 * {x_1^2, {x_2^2, {x_2, y_2}}}
+    expr = expr + ...
+        0.5 * anticommutator(obj.x1_pow2, ...
+                             anticommutator(obj.x2_pow2, ac_x2_y2));
+    
+    % Second term of ∇(x_1^2 x_2^2 x_3^2) -> -1.5 * x_1^2 * {x_2, y_2} x_3^2 
+    expr = expr - 1.5 * obj.x1_pow2 * ac_x2_y2 * obj.x3_pow2;
+    
+    % Second term of ∇(x_3^2 x_2^2 x_1^2) -> -1.5 * x_3^2 * {x_2, y_2} x_1^2 
+    expr = expr - 1.5 * obj.x3_pow2 * ac_x2_y2 * obj.x1_pow2;
+    
+end
+
+function expr = nabla_objective_y3(obj, variate) 
+%NABLA_OBJECTIVE_Y3 y_3 specialization of derivative.
+
+    % {x_3, y_3}:
+    ac_x3_y3 = anticommutator(obj.x3, variate);
+    
+    % First term of ∇(x_3^6) -> {x_3^4, {x_3, y_3}}
+    expr = anticommutator(obj.x3_pow4, ac_x3_y3);
+    
+    % Second term of ∇(x_3^6) -> x_3^2 {x_3, y_3} x_3^2
+    expr = expr + obj.x3_pow2 * ac_x3_y3 * obj.x3_pow2;
+    
+    % First term of ∇(x_1^2 x_2^2 x_3^2) -> -1.5 * x_1^2 x_2^2 {x_3, y_3}
+    expr = expr - 1.5 * obj.x1_pow2 * obj.x2_pow2 * ac_x3_y3;
+    
+    % Third term of ∇(x_3^2 x_2^2 x_1^2) -> -1.5 * {x_3, y_3} x_2^2 x_1^2 
+    expr = expr - 1.5 * ac_x3_y3 * obj.x2_pow2 * obj.x1_pow2;
+
 end

@@ -12,15 +12,18 @@ function constraints = base_psd_conditions(obj, state_real, state_img, mm, lm)
         constraints = [mm.yalmip(state_real, state_img) >= 0];
 
         % PSD localizing matrices
-        for idx=1:(obj.d)
+        if obj.exterior
             constraints = [constraints, ...
-                lm.neg_square{idx}.yalmip(state_real, state_img) >= 0];
+               lm.min_sphere.yalmip(state_real, state_img) >= 0];
         end
-        for idx=1:(obj.d*obj.d)
+        constraints = [constraints, ...
+           lm.max_sphere.yalmip(state_real, state_img) >= 0];
+                   
+        for idx=1:3
             constraints = [constraints, ...
-                lm.pos_comm{idx}.yalmip(state_real, state_img) >= 0];
+                lm.comm_plus{idx}.yalmip(state_real, state_img) >= 0];
             constraints = [constraints, ...
-                lm.neg_comm{idx}.yalmip(state_real, state_img) >= 0];
+                lm.comm_minus{idx}.yalmip(state_real, state_img) >= 0];
         end
         
     else % Purely real:        
@@ -28,15 +31,16 @@ function constraints = base_psd_conditions(obj, state_real, state_img, mm, lm)
         constraints = [mm.yalmip(state_real) >= 0];
 
         % PSD localizing matrices
-        for idx=1:(obj.d)
-            constraints = [constraints, ...
-                lm.neg_square{idx}.yalmip(state_real) >= 0];
+        if obj.exterior
+            constraints = [constraints, lm.min_sphere.yalmip(state_real) >= 0];
         end
-        for idx=1:(obj.d*obj.d)
+        constraints = [constraints, lm.max_sphere.yalmip(state_real) >= 0];
+       
+        for idx=1:3
             constraints = [constraints, ...
-                lm.pos_comm{idx}.yalmip(state_real) >= 0];
+                lm.comm_plus{idx}.yalmip(state_real) >= 0];
             constraints = [constraints, ...
-                lm.neg_comm{idx}.yalmip(state_real) >= 0];
+                lm.comm_minus{idx}.yalmip(state_real) >= 0];
         end
     end
 end

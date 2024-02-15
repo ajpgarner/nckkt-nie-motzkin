@@ -19,6 +19,10 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
         so_level = so;
     end
     
+    % MM level must be 3
+    assert(mm_level >= 3, ...
+           "MM Level must be at least 3 to contain all terms in the objective.");
+        
     % Reset if necessary
     if obj.solve_state > 0
         obj.reset();
@@ -28,7 +32,7 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     % Report solve type
     if obj.Verbose>=1
         if so
-            fprintf("\nSolving with state-optimality only, MM = %d, LM = %d, KKT = %d...\n", ...
+            fprintf("\nSolving with state-optimality only, MM = %d, LM = %d, SO = %d...\n", ...
                 mm_level, lm_level, so_level);
         else
             fprintf("\nSolving without ncKKT, MM = %d, LM = %d...\n", ...
@@ -40,17 +44,22 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     if obj.Verbose>=1
         fprintf("Generating matrices [MM %d, LM %d]...\n", mm_level, lm_level);    
     end
-    tic;
-    [mm, lm] = obj.make_matrices(mm_level, lm_level);    
+    mm_start = tic;
+    [obj.mm, obj.lm] = obj.make_matrices(mm_level, lm_level);    
     if so
         gamma = obj.make_gamma_matrix(lm_level);
     end
     
-    mm_time = toc;
+    mm_time = toc(mm_start);
     if obj.Verbose>=1
         fprintf("...matrices generated in %f seconds.\n", mm_time);
     end
    
+    ym_start = tic;
+    if obj.Verbose>=1
+        fprintf("Setting up constraints in yalmip...\n");
+    end
+    
     % Reset yalmip
     yalmip('clear');
     
@@ -62,7 +71,7 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     
     % Constrain PSD moment matrix and localizing matrices
     constraints = [constraints, ...
-                   obj.base_psd_conditions(sigma_a, false, mm, lm)];
+                   obj.base_psd_conditions(sigma_a, false, obj.mm, obj.lm)];
                
     % (Optional) state-optimality constraints
     if so
@@ -72,6 +81,12 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     
     % Objective function:
     objective = obj.Objective.yalmip(sigma_a);
+    
+    ym_time = toc(ym_start);
+    if obj.Verbose >= 1
+        fprintf("...constraints generated in %f seconds.\n", ym_time);
+        fprintf("Passing to solver...\n");
+    end
     
     % Solver parameters
     settings = sdpsettings;
@@ -85,7 +100,8 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     % Solve [minimization]
     ym_diagnostics = optimize(constraints, objective, settings); 
     assert(ym_diagnostics.problem ~= 1, "Problem was infeasible!");
-        
+    assert(ym_diagnostics.problem == 0, "A problem occured while solving!");
+
     % Get objective value
     result = value(objective);
     
@@ -97,7 +113,8 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     
     % Print solution in verbose mode
     if obj.Verbose >= 1
-        fprintf("Solution: %.10g\n", result);
+        fprintf("Solution mm = %d, lm = %d, so = %d: %.10g\n", ...
+            mm_level, lm_level, so_level, result);
     end
 end
 

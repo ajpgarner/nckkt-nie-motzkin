@@ -1,61 +1,41 @@
 %% compare.m
-% Produces the values featured in arXiv:2311.18707.
 %
 
 %% Parameters
-d = 3;
-delta = 0.1;
-objective_tensor = [0, 1,  1, 0; ...
-                    1, 1,  1, 1; ...
-                    1, 1,  1, -1; ...
-                    0, 1, -1,  0];
-essential_epsilon = 1e-3;
-mm_level = 2;
-lm_level = 2;
-kkt_level = 3; % Ideally: mm_level * 2 - 1
-verbose = 1;   % Set to 0 (quiet), 1 (some output) or 2 (lots of output).
+delta = 0.01;
+min_radius = 1.0;
+max_radius = 10.0;
+espilon = 1e-3: % For essential-ncKKT.
+verbosity = 2;
 
-%% Solve
-problem = MFCQExample(d, delta, objective_tensor, verbose);
+%% Set-up
+solver = NCNie(delta, min_radius, max_radius, verbosity);
 
-% No operator ncKKT, no state-optimality
-without_kkt = problem.solve_without_kkt(mm_level, lm_level, false);
+%% NPA Solves:
+npa_32 = solver.solve_without_kkt(3, 2, false);
+npa_33 = solver.solve_without_kkt(3, 3, false);
+npa_43 = solver.solve_without_kkt(4, 3, false);
+npa_44 = solver.solve_without_kkt(4, 4, false);
+npa_54 = solver.solve_without_kkt(5, 4, false);
 
-% No operator ncKKT, with state-optimality
-without_kkt_so = problem.solve_without_kkt(mm_level, lm_level, true);
+%% ncKKT Solves:
+nckkt_325 = solver.solve_without_kkt(3, 2, 5, espilon, false);
+nckkt_335 = solver.solve_without_kkt(3, 3, 5, espilon, false);
+nckkt_437 = solver.solve_without_kkt(4, 3, 7, espilon, false);
+nckkt_447 = solver.solve_without_kkt(4, 4, 7, espilon, false);
 
-% Essential ncKKT, no state-optimality
-essential_kkt = problem.solve_essential_kkt(mm_level, lm_level, ...
-                                            kkt_level, ...
-                                            essential_epsilon, false);
-                                        
-% Essential ncKKT, with state-optimality
-essential_kkt_so = problem.solve_essential_kkt(mm_level, lm_level, ...
-                                               kkt_level, ...
-                                               essential_epsilon, true);
-
-% Weak ncKKT, no state-optimality
-weak_kkt = problem.solve_weak_kkt(mm_level, lm_level, kkt_level, false);
-
-% Weak ncKKT, with state-optimality
-weak_kkt_so = problem.solve_weak_kkt(mm_level, lm_level, kkt_level, true);
-
-% Normed ncKKT, no state-optimality
-normed_kkt = problem.solve_normed_kkt(mm_level, lm_level, kkt_level, false);
-
-% Normed ncKKT, with state-optimality
-normed_kkt_so = problem.solve_normed_kkt(mm_level, lm_level, kkt_level, true);
 
 %% Display summary of results
-fprintf("\nResults for delta = %g, MM = %d, LM = %d, KKT = %d:\n", ...
-        delta, mm_level, lm_level, kkt_level);
-fprintf("Without ncKKT:\n%.10g\n\n", without_kkt);
-fprintf("Without ncKKT, with state-optimality:\n%.10g\n\n", without_kkt_so);
-fprintf("Essential ncKKT (epsilon = %g):\n%.10g\n\n", ...
-        essential_epsilon, essential_kkt);
-fprintf("Essential ncKKT (epsilon = %g), with state-optimality:\n%.10g\n\n", ...
-        essential_epsilon, essential_kkt_so);
-fprintf("Weak ncKKT:\n%.10g\n\n", weak_kkt);
-fprintf("Weak ncKKT, with state-optimality:\n%.10g\n\n", weak_kkt_so);
-fprintf("Normed ncKKT:\n%.10g\n\n", normed_kkt);
-fprintf("Normed ncKKT, with state-optimality:\n%.10g\n\n", normed_kkt_so);
+fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 3, 2, npa_32);
+fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 3, 3, npa_3);
+fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 4, 3, npa_43);
+%fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 4, 4, npa_44);
+%fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 5, 4, npa_54);
+fprintf("\n");
+
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d:\t%.8g\n", 3, 2, 5, nckkt_325);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d:\t%.8g\n", 3, 3, 5, nckkt_335);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d:\t%.8g\n", 4, 3, 7, nckkt_437);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d:\t%.8g\n", 4, 4, 7, nckkt_447);
+fprintf("\n");
+

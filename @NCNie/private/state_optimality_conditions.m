@@ -1,10 +1,10 @@
 function conditions = ...
-    state_optimality_conditions(obj, gamma, sigma, kkt_level)
+    state_optimality_conditions(obj, gamma, sigma, so_level)
 %STATE_OPTIMALITY_CONDITIONS
 %
 
     % Get commutating constraints...
-    monomials = obj.Scenario.WordList(kkt_level);
+    monomials = obj.Scenario.WordList(so_level);
     commutators = 1i * commutator(monomials, obj.Objective);
     commutators = commutators.onlyExistingSymbols; % Ignore non-existing expressions.
     
