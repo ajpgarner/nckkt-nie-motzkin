@@ -29,8 +29,8 @@ nckkt_447 = solver.solve_without_kkt(4, 4, 7, espilon, false);
 fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 3, 2, npa_32);
 fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 3, 3, npa_3);
 fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 4, 3, npa_43);
-%fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 4, 4, npa_44);
-%fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 5, 4, npa_54);
+fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 4, 4, npa_44);
+fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 5, 4, npa_54);
 fprintf("\n");
 
 fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d:\t%.8g\n", 3, 2, 5, nckkt_325);
