@@ -5,7 +5,7 @@
 delta = 0.01;
 min_radius = 1.0;
 max_radius = 10.0;
-espilon = 1e-3: % For essential-ncKKT.
+espilon = 1e-3; % For essential-ncKKT
 verbosity = 2;
 
 %% Set-up
