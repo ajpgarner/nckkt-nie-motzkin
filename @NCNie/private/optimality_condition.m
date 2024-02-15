@@ -35,7 +35,7 @@ function condition = optimality_condition(obj, states, vIdx, variate)
     % Inequality constraint: Sphere minimum (for exterior mode)
     if obj.exterior
         D_min_sphere = nabla_sphere(obj, true, vIdx, variate);
-        if ~D_min_sphere .IsZero
+        if ~D_min_sphere.IsZero
             expr = expr - D_min_sphere.yalmip(states.mu.min_sphere.a,...
                                               states.mu.min_sphere.b);
         end    
@@ -108,10 +108,10 @@ function expr = commutator_constraints(obj, expr, vIdx, variate, mu)
    if obj.Verbose >= 2
        if ~comm_first.IsZero
            fprintf(" ∇(δ+i[x%d,x%d]) = %s\n", ...
-                   mIdx, vIdx, comm_first.ObjectName);
+                   pIdx, vIdx, comm_first.ObjectName);
            neg_first = -comm_first;
            fprintf(" ∇(δ-i[x%d,x%d]) = %s\n", ...
-                   mIdx, vIdx, neg_first.ObjectName);
+                   pIdx, vIdx, neg_first.ObjectName);
        end
        if ~comm_second.IsZero
            fprintf(" ∇(δ+i[x%d,x%d]) = %s\n", ...
