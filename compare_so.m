@@ -25,8 +25,8 @@ fprintf("No KKT,\tMM = %d,\tLM = %d,\tSO = %d:\t%.8g\n", 4, 3, 4, so_npa_43);
 fprintf("No KKT,\tMM = %d,\tLM = %d,\tSO = %d:\t%.8g\n", 5, 3, 4, so_npa_53);
 fprintf("\n");
 
-fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\tSO = %d,\t%epsilon=%g:\t%.8g\n", 3, 3, 1, 4, epsilon, so_nckkt_331);
-fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\tSO = %d,\t%epsilon=%g:\t%.8g\n", 4, 3, 3, 4, epsilon, so_nckkt_433);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\tSO = %d,\tepsilon=%g:\t%.8g\n", 3, 3, 1, 4, epsilon, so_nckkt_331);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\tSO = %d,\tepsilon=%g:\t%.8g\n", 4, 3, 3, 4, epsilon, so_nckkt_433);
 
 fprintf("\n");
 
