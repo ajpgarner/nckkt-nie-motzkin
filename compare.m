@@ -11,24 +11,22 @@ verbosity = 1;
 %% Set-up
 solver = NCNieMotzkin(delta, min_radius, max_radius, verbosity);
 
-%% NPA Solves:
+%% Solve:
 npa_33 = solver.solve_without_kkt(3, 3, false);
 npa_43 = solver.solve_without_kkt(4, 3, false);
-
-%% ncKKT Solves:
 nckkt_331 = solver.solve_kkt(3, 3, 1, espilon, false);
-nckkt_431 = solver.solve_kkt(4, 3, 1, espilon, false);
-nckkt_432 = solver.solve_kkt(4, 3, 2, espilon, false);
+nckkt_433 = solver.solve_kkt(4, 3, 3, espilon, false);
+npa_53 = solver.solve_without_kkt(5, 3, false);
 
 
 %% Display summary of results
 fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 3, 3, npa_33);
 fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 4, 3, npa_43);
+fprintf("No KKT,\tMM = %d,\tLM = %d:\t%.8g\n", 5, 3, npa_53);
 fprintf("\n");
 
-fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\t%epsilon=%g:\t%.8g\n", 3, 3, 1, nckkt_331);
-fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\t%epsilon=%g:\t%.8g\n", 4, 3, 1, nckkt_431);
-fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\t%epsilon=%g:\t%.8g\n", 4, 3, 2, nckkt_432);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\t%epsilon=%g:\t%.8g\n", 3, 3, 1, epsilon, nckkt_331);
+fprintf("KKT,\tMM = %d,\tLM = %d,\tKKT = %d,\t%epsilon=%g:\t%.8g\n", 4, 3, 3, epsilon, nckkt_433);
 
 fprintf("\n");
 
