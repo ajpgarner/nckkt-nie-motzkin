@@ -1,13 +1,14 @@
-function expr = nabla_sphere(obj, exterior, variate_idx, variate)
-%NABLA_NEG_SQUARE  Derivative of sphere constraint.
-% Interior constraint:
+function expr = nabla_sphere(obj, variate_idx, variate)
+%NABLA_SPHERE Derivative of max sphere constraint.
+% Interior (max sphere) constraint:
 %   ∇(max - x_1^2 -x_2^2 -x_3^2) = -{x_1, y_1} - {x_2, y_2} - {x_3, y_3}.
-% Exterior constriant:
+% Exterior (min sphere) constriant:
 %   ∇(x_1^2 + x_2^2 + x_3^2 - min) = {x_1, y_1} + {x_2, y_2} + {x_3, y_3}.
 %
+% Both derivatives are independent of value of min/max and differ by sign.
+% This function returns max sphere; for min sphere, multiply by -1.
+%
 % PARAMS:
-%     exterior - True for exterior of sphere (min_sphere constraint),
-%                otherwise interior of sphere (max_sphere constraint).
 %  variate_idx - The element of the variate that is non-zero (1, 2 or 3).
 %      variate - The variate monomial.
 %
@@ -23,11 +24,6 @@ function expr = nabla_sphere(obj, exterior, variate_idx, variate)
        otherwise
            error("Bad variate index.");
    end
-   
-   % Minus sign for interior constraint
-   if ~exterior
-       expr = -1.0 * expr;
-   end
-    
+       
 end
 
