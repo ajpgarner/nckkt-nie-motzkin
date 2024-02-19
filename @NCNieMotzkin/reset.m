@@ -67,5 +67,6 @@ function reset(obj)
     obj.soln_states = false;
     obj.mm = false;
     obj.lm = false;
+    obj.gamma = false;
 
 end

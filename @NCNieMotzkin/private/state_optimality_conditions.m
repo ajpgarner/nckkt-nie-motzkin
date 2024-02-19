@@ -1,12 +1,15 @@
-function conditions = ...
+function [conditions, comm_count] = ...
     state_optimality_conditions(obj, gamma, sigma, so_level)
 %STATE_OPTIMALITY_CONDITIONS
 %
 
     % Get commutating constraints...
     monomials = obj.Scenario.WordList(so_level);
-    commutators = 1i * commutator(monomials, obj.Objective);
+    commutators = commutator(monomials, obj.Objective);
     commutators = commutators.onlyExistingSymbols; % Ignore non-existing expressions.
+    
+    % Count number of commuting SO conditions.
+    comm_count = numel(commutators);
     
     % Make yalmipified conditions
     conditions = [commutators.yalmip(sigma) == 0];

@@ -1,9 +1,8 @@
-function [mm, lm, gamma] = make_matrices(obj, mm_level, lm_level, make_gamma)
+function [mm, lm, gamma] = make_matrices(obj, mm_level, lm_level)
 %MAKE_MATRICES Make moment and localizing matrices
 
-    if nargin < 4   
-        make_gamma = false;
-    end
+    % Make gamma matrix?
+    make_gamma = nargout >= 3;
     
     % Make moment matrix
     mm = obj.Scenario.MomentMatrix(mm_level);
@@ -30,8 +29,6 @@ function [mm, lm, gamma] = make_matrices(obj, mm_level, lm_level, make_gamma)
     % Make gamma matrix (for state optimality purposes), if requested...
     if make_gamma
         gamma = make_gamma_matrix(obj, lm_level);
-    else
-        gamma = false;
     end
 end
 

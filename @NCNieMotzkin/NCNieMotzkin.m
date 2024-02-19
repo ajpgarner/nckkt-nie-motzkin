@@ -41,6 +41,7 @@ classdef NCNieMotzkin < handle
     properties(Dependent, SetAccess=private, GetAccess=public)
         MomentMatrix
         LocalizingMatrices
+        GammaMatrix
         SolutionStates
     end
         
@@ -48,6 +49,7 @@ classdef NCNieMotzkin < handle
     properties(SetAccess=private, GetAccess=public)
         mm; % Moment matrix
         lm; % Localizing matrices.
+        gamma; % Gamma matrix
     end
     
     %% Other Private parameters
@@ -122,6 +124,11 @@ classdef NCNieMotzkin < handle
                 "No solution states are available until a solution has been completed.");
             val = obj.soln_states;
         end
+        
+        function val = get.GammaMatrix(obj)
+            assert(obj.solve_state >= 1 && ~isequal(obj.gamma, false),...
+                "A gamma matrix has not been generated.");
+            val = obj.gamma;
+        end
     end
 end
-

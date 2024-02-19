@@ -46,9 +46,10 @@ function [result, state_values] = ...
     end
     
     mm_start = tic;
-    [mm, lm] = obj.make_matrices(mm_level, lm_level);    
-    if so_level
-        gamma = obj.make_gamma_matrix(lm_level);
+    if so_level > 0
+        [obj.mm, obj.lm, obj.gamma] = obj.make_matrices(mm_level, lm_level);    
+    else        
+        [obj.mm, obj.lm] = obj.make_matrices(mm_level, lm_level);    
     end
     mm_time = toc(mm_start);
     if obj.Verbose>=1
@@ -79,7 +80,7 @@ function [result, state_values] = ...
     
     % Positivity constraints on MM and LM (all states)
     constraints = [constraints, ...
-        kkt_psd_conditions(obj, states, mm, lm, epsilon)];
+        kkt_psd_conditions(obj, states, obj.mm, obj.lm, epsilon)];
             
     % mu_i(g_i) and optimality constraints
     constraints = [constraints, ...
@@ -87,16 +88,23 @@ function [result, state_values] = ...
                              
     % (Optional) state-optimality constraints
     if so_level
-        constraints = [constraints, ...
-           state_optimality_conditions(obj, gamma, states.sigma, kkt_level)];
+        [so_constraints, N_so] = ...
+            state_optimality_conditions(obj, obj.gamma, ...
+                                        states.sigma, kkt_level);
+        constraints = [constraints, so_constraints];           
     end
                
     % In verbose mode, print a summary of constraints
     constraint_time = toc(constraint_start);
     if obj.Verbose >= 1
         cs = size(constraints);
-        fprintf("...generated %d constraints in %f seconds.\n", ...
-                cs(1), constraint_time);
+        if so_level > 0
+            fprintf("...generated %d constraints (including %d state optimality) in %f seconds.\n",...
+                    cs(1), N_so, constraint_time);
+        else
+            fprintf("...generated %d constraints in %f seconds.\n",...
+                    cs(1), constraint_time);
+        end            
     end
     
     % Objective function

@@ -1,4 +1,4 @@
-function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
+function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so_level)
 %SOLVE_NO_KKT Solve, with no KKT operator conditions
 % PARAMS:
 %    mm_level - Hierarchy level of moment matrix
@@ -11,12 +11,11 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     assert(nargin>=3, ...
         "Arguments: moment matrix level, localizing matrix level.");
     if nargin < 4
-        so = false;
-    end
-    if so == false
         so_level = 0;
     else
-        so_level = so;
+        if isequal(so_level, false)
+            so_level = 0;
+        end
     end
     
     % MM level must be 3
@@ -31,7 +30,7 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     
     % Report solve type
     if obj.Verbose>=1
-        if so
+        if so_level > 0
             fprintf("\nSolving with state-optimality only, MM = %d, LM = %d, SO = %d...\n", ...
                 mm_level, lm_level, so_level);
         else
@@ -45,9 +44,11 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
         fprintf("Generating matrices [MM %d, LM %d]...\n", mm_level, lm_level);    
     end
     mm_start = tic;
-    [obj.mm, obj.lm] = obj.make_matrices(mm_level, lm_level);    
-    if so
-        gamma = obj.make_gamma_matrix(lm_level);
+    
+    if so_level > 0
+        [obj.mm, obj.lm, obj.gamma] = obj.make_matrices(mm_level, lm_level);        
+    else
+        [obj.mm, obj.lm] = obj.make_matrices(mm_level, lm_level);
     end
     
     mm_time = toc(mm_start);
@@ -74,9 +75,10 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
                    obj.base_psd_conditions(sigma_a, false, obj.mm, obj.lm)];
                
     % (Optional) state-optimality constraints
-    if so
-        constraints = [constraints, ...
-           obj.state_optimality_conditions(gamma, sigma_a, so_level)];
+    if so_level > 0
+        [so_const, N_so] = ...
+            obj.state_optimality_conditions(obj.gamma, sigma_a, so_level);
+        constraints = [constraints, so_const];
     end
     
     % Objective function:
@@ -84,7 +86,11 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     
     ym_time = toc(ym_start);
     if obj.Verbose >= 1
-        fprintf("...constraints generated in %f seconds.\n", ym_time);
+        if so_level > 0
+            fprintf("...constraints (including %d state optimality) generated in %f seconds.\n", N_so, ym_time);
+        else
+            fprintf("...constraints generated in %f seconds.\n", ym_time);
+        end        
         fprintf("Passing to solver...\n");
     end
     
@@ -113,11 +119,10 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     if nargout >= 2        
         state = obj.soln_states;
     end
-        
-    
+
     % Mark as solved
     obj.solve_state = 2;
-    
+
     % Print solution in verbose mode
     if obj.Verbose >= 1
         fprintf("Solution mm = %d, lm = %d, so = %d: %.10g\n", ...
