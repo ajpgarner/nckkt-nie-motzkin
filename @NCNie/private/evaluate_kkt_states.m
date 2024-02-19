@@ -13,14 +13,10 @@ end
 function mu = evaluate_mu(obj, ym_states)
     mu = struct;
     if obj.exterior
-        mu.min_sphere = struct;
-        mu.min_sphere.a = value(ym_states.min_sphere.a);
-        mu.min_sphere.b = value(ym_states.min_sphere.b);
+        mu.min_sphere = value(ym_states.min_sphere);
     end
     
-    mu.max_sphere = struct;
-    mu.max_sphere.a = value(ym_states.max_sphere.a);
-    mu.max_sphere.b = value(ym_states.max_sphere.b);
+    mu.max_sphere = value(ym_states.max_sphere);
     
     mu.comm_plus = evaluate_complex_states(3, ym_states.comm_plus);
     mu.comm_minus = evaluate_complex_states(3, ym_states.comm_minus);

@@ -25,8 +25,7 @@ function condition = optimality_condition(obj, states, vIdx, variate)
     % Inequality constraint: Sphere maximum
     D_max_sphere = nabla_sphere(obj, false, vIdx, variate);
     if ~D_max_sphere.IsZero
-        expr = expr - D_max_sphere.yalmip(states.mu.max_sphere.a, ...
-                                          states.mu.max_sphere.b);
+        expr = expr - D_max_sphere.yalmip(states.mu.max_sphere);
     end
     if obj.Verbose>=2 
         fprintf(" ∇max-sphere = %s\n", D_max_sphere.ObjectName);
@@ -36,8 +35,7 @@ function condition = optimality_condition(obj, states, vIdx, variate)
     if obj.exterior
         D_min_sphere = nabla_sphere(obj, true, vIdx, variate);
         if ~D_min_sphere.IsZero
-            expr = expr - D_min_sphere.yalmip(states.mu.min_sphere.a,...
-                                              states.mu.min_sphere.b);
+            expr = expr - D_min_sphere.yalmip(states.mu.min_sphere);
         end    
         if obj.Verbose>=2 
             fprintf(" ∇min-sphere = %s\n", D_min_sphere.ObjectName);

@@ -4,10 +4,10 @@ function states = make_kkt_states(obj)
 %
 % Outputs the following structure, whose leaves are yalmip sdpvars:
 % states
-%   .sigma          [1 state]
+%   .sigma          [1 state] real parts only
 %   .mu             [struct]
-%      .max_sphere  [1 state] in .a (real) and .b (imaginary) parts
-%      .min_sphere  [1 state] in .a (real) and .b (imaginary) parts
+%      .max_sphere  [1 state] real parts only
+%      .min_sphere  [1 state] real parts only
 %      .comm_plus   [3 states] in .a (real) and .b (imaginary) parts
 %      .comm_minus  [3 states] in .a (real) and .b (imaginary) parts
 %
@@ -31,14 +31,12 @@ end
 
 function mu = make_mu(obj)
     mu = struct;
-    % μ associated with max - x_1^2 - x_2^2 - x_3^2 >= 0, could be complex
-    mu.max_sphere = struct;
-    [mu.max_sphere.a, mu.max_sphere.b] = obj.Scenario.yalmipVars();
+    % μ associated with max - x_1^2 - x_2^2 - x_3^2 >= 0, real only
+    mu.max_sphere = obj.Scenario.yalmipVars();
     
-     % μ associated with x_1^2 + x_2^2 + x_3^2 - min >= 0, could be complex
+     % μ associated with x_1^2 + x_2^2 + x_3^2 - min >= 0, real only
     if obj.exterior       
-        mu.min_sphere = struct;
-        [mu.min_sphere.a, mu.min_sphere.b] = obj.Scenario.yalmipVars();
+        mu.min_sphere = obj.Scenario.yalmipVars();
     end
     
     % μ associated with δ + i[a_j, b_k] >= 0, could be complex

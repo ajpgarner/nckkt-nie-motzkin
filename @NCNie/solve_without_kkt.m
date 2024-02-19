@@ -109,7 +109,11 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so)
     result = value(objective);
     
     % Get solution state
-    state = value(sigma_a);
+    obj.soln_states= value(sigma_a);
+    if nargout >= 2        
+        state = obj.soln_states;
+    end
+        
     
     % Mark as solved
     obj.solve_state = 2;

@@ -115,18 +115,22 @@ function [result, state_values] = ...
     if obj.Verbose >= 1
         fprintf("Passing to solver...\n");
     end
-    ym_diagnostics = optimize(constraints, objective, settings); 
+    
+    ym_diagnostics = optimize(constraints, objective, settings);
     assert(ym_diagnostics.problem ~= 1, "Problem was infeasible!");
     if ym_diagnostics.problem ~= 0
-		fprintf("/!\ A problem occured while solving...\n");
-		disp(ym_diagnostics);
-	end
-         
+        fprintf("/!\ A problem occured while solving...\n");
+        disp(ym_diagnostics);
+    end
+    
     % Get objective value
     result = value(objective);
 
     % Get state values (nb: same layout as weak)
-    state_values = evaluate_kkt_states(obj, states); 
+    obj.soln_states = evaluate_kkt_states(obj, states); 
+    if nargout >=2 
+        state_values = obj.soln_states;
+    end
     
     % Mark as solved
     obj.solve_state = 2;

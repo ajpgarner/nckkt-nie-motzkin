@@ -62,9 +62,10 @@ function reset(obj)
     obj.Constraints.comm_minus{2} = obj.delta - icomm_x3x1;
     obj.Constraints.comm_minus{3} = obj.delta - icomm_x1x2;
             
-    % Mark as unsolved
+    % Mark as unsolved and clear solution information
     obj.solve_state = 0;
-    
- 
-end
+    obj.soln_states = false;
+    obj.mm = false;
+    obj.lm = false;
 
+end

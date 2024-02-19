@@ -35,16 +35,24 @@ classdef NCNie < handle
     properties(Access=public)
         Verbose = 0 % Verbosity level (0, 1 or 2).
     end
+    
+    %% Solution-dependent parameters
+    properties(Dependent, SetAccess=private, GetAccess=public)
+        MomentMatrix
+        LocalizingMatrices
+        SolutionStates
+    end
         
-    %% Solution parameters
+    %% SDP-ized parameters (dependent on solution)
     properties(SetAccess=private, GetAccess=public)
         mm; % Moment matrix
         lm; % Localizing matrices.
     end
     
-    %% Private parameters
+    %% Other Private parameters
     properties(Access=private)
         solve_state = 0; % 0 = no solve, 1 = started; 2 = completed.
+        soln_states = false; %
     end
        
     
@@ -90,5 +98,26 @@ classdef NCNie < handle
             obj.reset();
         end
     end  
+    
+    %% Dependent parameters
+    methods
+        function val = get.MomentMatrix(obj)
+            assert(obj.solve_state >= 1, ...
+                "No moment matrix is available until a solution attempt has started.");
+            val = obj.mm;
+        end
+        
+        function val = get.LocalizingMatrices(obj)
+            assert(obj.solve_state >= 1, ...
+                "No localizing matrices are available until a solution attempt has started.");
+            val = obj.lm;
+        end
+        
+        function val = get.SolutionStates(obj)
+            assert(obj.solve_state >= 2, ...
+                "No solution states are available until a solution has been completed.");
+            val = obj.soln_states;
+        end
+    end
 end
 
