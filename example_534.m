@@ -9,7 +9,7 @@ espilon = 1e-4; % For essential-ncKKT
 verbosity = 1;
 
 %% Set-up
-solver = NCNie(delta, min_radius, max_radius, verbosity);
+solver = NCNieMotzkin(delta, min_radius, max_radius, verbosity);
 
 %% Solve:
 nckkt_534 = solver.solve_kkt(5, 3, 4, espilon, false);

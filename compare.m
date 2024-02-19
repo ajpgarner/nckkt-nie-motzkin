@@ -4,12 +4,12 @@
 %% Parameters
 delta = 0.01;
 min_radius = 1.0;
-max_radius = 10.0;
+max_radius = 7.5;
 espilon = 1e-4; % For essential-ncKKT
 verbosity = 1;
 
 %% Set-up
-solver = NCNie(delta, min_radius, max_radius, verbosity);
+solver = NCNieMotzkin(delta, min_radius, max_radius, verbosity);
 
 %% NPA Solves:
 npa_32 = solver.solve_without_kkt(3, 2, false);

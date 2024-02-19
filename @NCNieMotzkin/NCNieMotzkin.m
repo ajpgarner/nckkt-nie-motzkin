@@ -1,5 +1,6 @@
-classdef NCNie < handle
-%NCNie Example based on example 5.3 and 5.4 of Nie [arXiv:1006.2418]
+classdef NCNieMotzkin < handle
+%NCNieMotzkin Problem based on examples 5.3 and 5.4 of Nie/
+% See: [arXiv:1006.2418]
 %
 % To make and solve an example, first invoke the constructor of this class
 % to set up the problem, and then the appropriate solve_ function to
@@ -58,13 +59,16 @@ classdef NCNie < handle
     
     %% Constructor
     methods        
-        function obj = NCNie(delta, min_sphere, max_sphere, verbose)
-        %MFCQEXAMPLE Construct an example problem.
+        function obj = NCNieMotzkin(delta, min_sphere, max_sphere, verbose)
+        %NCNieMotzkin Construct an example problem.
         %
         % PARAMS:
-        %            delta - The limit to non-commutation.
+        %       delta - The limit to non-commutation.
+        %  min_sphere - The minimum sum of squares
+        %  max_sphere - The maximum sum of squares
+        %     verbose - 0 (quiet), 1 (some output), or 2 (lots of output).
         %
-                     
+
             % Parse delta parameter            
             assert(nargin>=1 && isscalar(delta) && delta >= 0)
             obj.delta = double(delta);
