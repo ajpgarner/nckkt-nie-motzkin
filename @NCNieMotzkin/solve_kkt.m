@@ -108,7 +108,7 @@ function [result, state_values] = ...
     end
     
     % Objective function
-    objective = obj.Objective.yalmip(states.sigma);
+    objective = obj.Objective.Apply(states.sigma);
     
     % Solver parameters
     settings = sdpsettings;

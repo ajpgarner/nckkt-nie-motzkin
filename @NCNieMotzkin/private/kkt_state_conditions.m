@@ -52,9 +52,9 @@ function result = essential_mu_g_s(constraint, monomials, state)
     gs = gs.onlyExistingSymbols;
     if ~isempty(gs)
         if complex
-            result = [gs.yalmip(state.a, state.b) == 0];
+            result = [gs.Apply(state.a, state.b) == 0];
         else
-            result = [gs.yalmip(state) == 0];
+            result = [gs.Apply(state) == 0];
         end
     else
         result = [];
@@ -65,9 +65,9 @@ function result = essential_mu_g_s(constraint, monomials, state)
     sg = sg.onlyExistingSymbols;
     if ~isempty(sg)
         if complex
-             result = [result, sg.yalmip(state.a, state.b) == 0];
+             result = [result, sg.Apply(state.a, state.b) == 0];
         else
-             result = [result, sg.yalmip(state) == 0];
+             result = [result, sg.Apply(state) == 0];
         end
     end    
 end

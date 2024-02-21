@@ -82,7 +82,7 @@ function [result, state] = solve_without_kkt(obj, mm_level, lm_level, so_level)
     end
     
     % Objective function:
-    objective = obj.Objective.yalmip(sigma_a);
+    objective = obj.Objective.Apply(sigma_a);
     
     ym_time = toc(ym_start);
     if obj.Verbose >= 1

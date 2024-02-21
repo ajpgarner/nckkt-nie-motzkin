@@ -20,38 +20,38 @@ end
 function constraints = complex_psd(obj, state_real, state_img, mm, lm)
 
     % PSD moment matrix
-    constraints = [mm.yalmip(state_real, state_img) >= 0];
+    constraints = [mm.Apply(state_real, state_img) >= 0];
 
     % PSD localizing matrices
     if obj.exterior
         constraints = [constraints, ...
-           lm.min_sphere.yalmip(state_real, state_img) >= 0];
+           lm.min_sphere.Apply(state_real, state_img) >= 0];
     end
     constraints = [constraints, ...
-       lm.max_sphere.yalmip(state_real, state_img) >= 0];
+       lm.max_sphere.Apply(state_real, state_img) >= 0];
 
     for idx=1:3
         constraints = [constraints, ...
-            lm.comm_plus{idx}.yalmip(state_real, state_img) >= 0];
+            lm.comm_plus{idx}.Apply(state_real, state_img) >= 0];
         constraints = [constraints, ...
-            lm.comm_minus{idx}.yalmip(state_real, state_img) >= 0];
+            lm.comm_minus{idx}.Apply(state_real, state_img) >= 0];
     end
 end
 
 function constraints = real_psd(obj, state_real, mm, lm)
     % PSD moment matrix
-    constraints = [mm.yalmip(state_real) >= 0];
+    constraints = [mm.Apply(state_real) >= 0];
 
     % PSD localizing matrices
     if obj.exterior
-        constraints = [constraints, lm.min_sphere.yalmip(state_real) >= 0];
+        constraints = [constraints, lm.min_sphere.Apply(state_real) >= 0];
     end
-    constraints = [constraints, lm.max_sphere.yalmip(state_real) >= 0];
+    constraints = [constraints, lm.max_sphere.Apply(state_real) >= 0];
 
     for idx=1:3
         constraints = [constraints, ...
-                       lm.comm_plus{idx}.yalmip(state_real) >= 0];
+                       lm.comm_plus{idx}.Apply(state_real) >= 0];
         constraints = [constraints, ...
-                       lm.comm_minus{idx}.yalmip(state_real) >= 0];
+                       lm.comm_minus{idx}.Apply(state_real) >= 0];
     end
 end

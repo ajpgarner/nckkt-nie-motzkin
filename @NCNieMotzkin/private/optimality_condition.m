@@ -17,7 +17,7 @@ function condition = optimality_condition(obj, states, vIdx, variate)
     
     % Objective function
     nabla_f = obj.nabla_objective(vIdx, variate);
-    expr = nabla_f.yalmip(states.sigma);    
+    expr = nabla_f.Apply(states.sigma);    
     if obj.Verbose >= 2
         fprintf(" ∇f = %s\n", nabla_f.ObjectName);
     end
@@ -25,7 +25,7 @@ function condition = optimality_condition(obj, states, vIdx, variate)
     % Inequality constraint: Sphere maximum
     D_max_sphere = nabla_sphere(obj, vIdx, variate);
     if ~D_max_sphere.IsZero
-        expr = expr - D_max_sphere.yalmip(states.mu.max_sphere);
+        expr = expr - D_max_sphere.Apply(states.mu.max_sphere);
     end
     if obj.Verbose>=2 
         fprintf(" ∇max-sphere = %s\n", D_max_sphere.ObjectName);
@@ -34,7 +34,7 @@ function condition = optimality_condition(obj, states, vIdx, variate)
     % Inequality constraint: Sphere minimum (in exterior mode)
     % NB: D_min_sphere = - D_max_sphere
     if obj.exterior && ~D_max_sphere.IsZero
-        expr = expr + D_max_sphere.yalmip(states.mu.min_sphere);
+        expr = expr + D_max_sphere.Apply(states.mu.min_sphere);
         if obj.Verbose>=2 
             D_min_sphere = -D_max_sphere;
             fprintf(" ∇min-sphere = %s\n", D_min_sphere.ObjectName);
@@ -87,17 +87,17 @@ function expr = commutator_constraints(obj, expr, vIdx, variate, mu)
    
    % Add first terms if non-trivial
    if ~comm_first.IsZero
-       expr = expr - comm_first.yalmip(mu.comm_plus{pIdx}.a, ...
+       expr = expr - comm_first.Apply(mu.comm_plus{pIdx}.a, ...
                                        mu.comm_plus{pIdx}.b);
-       expr = expr + comm_first.yalmip(mu.comm_minus{pIdx}.a, ...
+       expr = expr + comm_first.Apply(mu.comm_minus{pIdx}.a, ...
                                        mu.comm_minus{pIdx}.b);    
    end
    
    % Add second terms if non-tirival
    if ~comm_second.IsZero       
-       expr = expr - comm_second.yalmip(mu.comm_plus{mIdx}.a, ...
+       expr = expr - comm_second.Apply(mu.comm_plus{mIdx}.a, ...
                                         mu.comm_plus{mIdx}.b);
-       expr = expr + comm_second.yalmip(mu.comm_minus{mIdx}.a, ...
+       expr = expr + comm_second.Apply(mu.comm_minus{mIdx}.a, ...
                                         mu.comm_minus{mIdx}.b);
    end
    

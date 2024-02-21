@@ -12,10 +12,10 @@ function [conditions, comm_count] = ...
     comm_count = numel(commutators);
     
     % Make yalmipified conditions
-    conditions = [commutators.yalmip(sigma) == 0];
+    conditions = [commutators.Apply(sigma) == 0];
        
     % Make PSD gamma-matrix condition
-    ym_gamma = gamma.yalmip(sigma);
+    ym_gamma = gamma.Apply(sigma);
     ym_gamma = ym_gamma(2:end, 2:end);   
     conditions = [conditions, ym_gamma  >= 0];
     

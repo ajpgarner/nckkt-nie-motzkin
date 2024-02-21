@@ -24,21 +24,21 @@ function constraints = complex_epsilon_psd(obj, state_real, state_img, ...
     espilon_lm = epsilon * eye(size(lm.max_sphere)); % [all lm same size]
 
     % PSD moment matrix
-    constraints = [mm.yalmip(state_real, state_img) + espilon_mm >= 0];
+    constraints = [mm.Apply(state_real, state_img) + espilon_mm >= 0];
 
     % PSD localizing matrices
     if obj.exterior
         constraints = [constraints, ...
-           lm.min_sphere.yalmip(state_real, state_img) + espilon_lm >= 0];
+           lm.min_sphere.Apply(state_real, state_img) + espilon_lm >= 0];
     end
     constraints = [constraints, ...
-       lm.max_sphere.yalmip(state_real, state_img) + espilon_lm >= 0];
+       lm.max_sphere.Apply(state_real, state_img) + espilon_lm >= 0];
 
     for idx=1:3
         constraints = [constraints, ...
-            lm.comm_plus{idx}.yalmip(state_real, state_img) + espilon_lm >= 0];
+            lm.comm_plus{idx}.Apply(state_real, state_img) + espilon_lm >= 0];
         constraints = [constraints, ...
-            lm.comm_minus{idx}.yalmip(state_real, state_img) + espilon_lm >= 0];
+            lm.comm_minus{idx}.Apply(state_real, state_img) + espilon_lm >= 0];
     end
 end
 
@@ -48,20 +48,20 @@ function constraints = real_epsilon_psd(obj, state_real, mm, lm, epsilon)
     espilon_lm = epsilon * eye(size(lm.max_sphere)); % [all lm same size]
     
     % PSD moment matrix
-    constraints = [mm.yalmip(state_real) + espilon_mm >= 0];
+    constraints = [mm.Apply(state_real) + espilon_mm >= 0];
 
     % PSD localizing matrices
     if obj.exterior
         constraints = [constraints, ...
-           lm.min_sphere.yalmip(state_real) + espilon_lm >= 0];
+           lm.min_sphere.Apply(state_real) + espilon_lm >= 0];
     end
     constraints = [constraints, ...
-       lm.max_sphere.yalmip(state_real) + espilon_lm >= 0];
+       lm.max_sphere.Apply(state_real) + espilon_lm >= 0];
 
     for idx=1:3
         constraints = [constraints, ...
-            lm.comm_plus{idx}.yalmip(state_real) + espilon_lm >= 0];
+            lm.comm_plus{idx}.Apply(state_real) + espilon_lm >= 0];
         constraints = [constraints, ...
-            lm.comm_minus{idx}.yalmip(state_real) + espilon_lm >= 0];
+            lm.comm_minus{idx}.Apply(state_real) + espilon_lm >= 0];
     end
 end
